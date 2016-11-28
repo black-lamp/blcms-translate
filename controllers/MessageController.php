@@ -43,7 +43,7 @@ class MessageController extends Controller
         return $this->render('index', [
             'allLanguages' => Language::find()->all(),
             'languages' => Language::find()->where(['default' => false])->all(),
-            'allCategories' => SourceMessage::find()->select(['id as id', 'category as category'])->groupBy(['category', 'id'])->orderBy(['category' => SORT_ASC])->all(),
+            'allCategories' => SourceMessage::find()->select(['id', 'category'])->groupBy(['category', 'id'])->orderBy(['category' => SORT_ASC])->all(),
             'sourceMessages' => $messages,
             'pages' => $pages,
             'addModel' => new SourceMessage(),
