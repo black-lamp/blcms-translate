@@ -34,10 +34,11 @@ $dataGet = Yii::$app->request->get();
                             <select id="filtertranslationform-categoryid" class="form-control" name="categoryId">
                                 <option value="">--<?= Translation::t('main', 'select') ?>--</option>
                                 <?php foreach ($allCategories as $category):?>
-                                    <option <?= $selectedCategory == $category['id'] ? 'selected' : '' ?> value="<?= $category['id'] ?>">
+                                    <option <?= $selectedCategory == $category['category'] ? 'selected' : '' ?>
+                                        value="<?= $category['category'] ?>">
                                         <?= $category['category'] ?>
                                     </option>
-                                <?php endforeach;?>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>
@@ -64,7 +65,8 @@ $dataGet = Yii::$app->request->get();
                     ?>
                 </div>
                 <div>
-                    <input type="submit" class="btn btn-primary" style="width: 100%;" value="<?= Translation::t('main', 'Add')?>">
+                    <input type="submit" class="btn btn-primary" style="width: 100%;"
+                           value="<?= Translation::t('main', 'Add') ?>">
                 </div>
                 <?php ActiveForm::end(); ?>
             </div>
@@ -77,13 +79,14 @@ $dataGet = Yii::$app->request->get();
                 <h3><?= Translation::t('main', 'Filter') ?></h3>
             </div>
             <div class="ibox-content">
-                <?php ActiveForm::begin([ 'action' => Url::to(['index']), 'method' => 'get'])?>
+                <?php ActiveForm::begin(['action' => Url::to(['index']), 'method' => 'get']) ?>
                 <div class="form-group">
                     <label><?= Translation::t('main', 'Category') ?></label>
                     <select id="filtertranslationform-categoryid" class="form-control" name="categoryId">
                         <option value="">--<?= Translation::t('main', 'all') ?>--</option>
-                        <?php foreach ($allCategories as $category):?>
-                            <option <?= $selectedCategory == $category['id'] ? 'selected' : '' ?> value="<?= $category['id'] ?>">
+                        <?php foreach ($allCategories as $category): ?>
+                            <option <?= $selectedCategory == $category['category'] ? 'selected' : '' ?>
+                                value="<?= $category['category'] ?>">
                                 <?= $category['category'] ?>
                             </option>
                         <?php endforeach;?>
@@ -92,8 +95,9 @@ $dataGet = Yii::$app->request->get();
                 <div class="form-group">
                     <label><?= Translation::t('main', 'Language') ?></label>
                     <select id="filtertranslationform-languageid" class="form-control" name="languageId">
-                        <?php foreach ($allLanguages as $language):?>
-                            <option <?= $selectedLanguage->id == $language->id ? 'selected' : '' ?> value="<?= $language->id ?>">
+                        <?php foreach ($allLanguages as $language): ?>
+                            <option <?= $selectedLanguage->id == $language->id ? 'selected' : '' ?>
+                                value="<?= $language->id ?>">
                                 <?= $language->name ?>
                             </option>
                         <?php endforeach;?>
@@ -119,13 +123,13 @@ $dataGet = Yii::$app->request->get();
             </div>
             <div class="ibox-content">
                 <div class="table-responsive">
-                    <?php if(!empty($sourceMessages)): ?>
+                    <?php if (!empty($sourceMessages)): ?>
                         <table class="table table-hover">
                             <thead>
                             <tr>
                                 <th class="col-sm-2"><?= Translation::t('main', 'Category') ?></th>
                                 <th class="col-sm-4"><?= Translation::t('main', 'source') ?></th>
-                                <?php if(!empty($sourceMessages[0]->messages)): ?>
+                                <?php if (!empty($sourceMessages[0]->messages)): ?>
                                     <th class="col-sm-4"><?= Translation::t('main', 'Translation') ?></th>
                                 <?php else: ?>
                                     <th class="col-sm-4"></th>
@@ -135,12 +139,12 @@ $dataGet = Yii::$app->request->get();
                             </tr>
                             </thead>
                             <tbody>
-                            <?php foreach($sourceMessages as $sourceMessage): ?>
-                                <?php $messageTranslation = ArrayHelper::index($sourceMessage->messages, 'language')[$selectedLanguage->lang_id]->translation ?>
+                            <?php foreach ($sourceMessages as $sourceMessage): ?>
                                 <tr style="<?= ((empty($messageTranslation) && !empty(ArrayHelper::index($languages, 'id')[$selectedLanguage->id])) ? 'color: #ed5565; border-left: 10px solid #ed5565;' : 'color: green; border-left: 10px solid green;') ?>">
                                     <td><?= $sourceMessage->category ?></td>
                                     <td><?= $sourceMessage->message ?></td>
-                                    <?php if(!empty($sourceMessage->messages)): ?>
+                                    <?php if (!empty($sourceMessage->messages)): ?>
+                                        <?php $messageTranslation = ArrayHelper::index($sourceMessage->messages, 'language')[$selectedLanguage->lang_id]->translation ?>
                                         <td><?= $messageTranslation ?></td>
                                     <?php else: ?>
                                         <td></td>
@@ -148,7 +152,7 @@ $dataGet = Yii::$app->request->get();
                                     <td>
                                         <?php
                                         $translations = ArrayHelper::index($sourceMessage->messages, 'language');
-                                        foreach($languages as $language){
+                                        foreach ($languages as $language) {
                                             echo Html::a(
                                                 $language->name,
                                                 Url::toRoute([
@@ -158,9 +162,9 @@ $dataGet = Yii::$app->request->get();
                                                 ]),
                                                 [
                                                     'class' => (!empty($translations[$language->lang_id]) ?
-                                                        'label label-primary' :
-                                                        'label label-danger'
-                                                    ) . ' col-sm-12',
+                                                            'label label-primary' :
+                                                            'label label-danger'
+                                                        ) . ' col-sm-12',
                                                     'title' => (!empty($translations[$language->lang_id]) ?
                                                         Translation::t('main', 'Change translation') :
                                                         Translation::t('main', 'Add translation')
@@ -176,7 +180,9 @@ $dataGet = Yii::$app->request->get();
                                             'message/edit',
                                             'categoryId' => $sourceMessage->id,
                                             'languageId' => $selectedLanguage->id
-                                        ]) ?>" class="btn glyphicon glyphicon-<?= (empty($messageTranslation) ? 'plus btn-primary' : 'pencil btn-info')?>" type="button">
+                                        ]) ?>"
+                                           class="btn glyphicon glyphicon-<?= (empty($messageTranslation) ? 'plus btn-primary' : 'pencil btn-info') ?>"
+                                           type="button">
                                         </a>
                                         <a href="<?= Url::toRoute([
                                             'message/delete',
@@ -185,7 +191,6 @@ $dataGet = Yii::$app->request->get();
                                         ]) ?>" class="btn btn-danger glyphicon glyphicon-trash" type="button">
                                         </a>
                                     </td>
-
                                 </tr>
                             <?php endforeach; ?>
                             </tbody>

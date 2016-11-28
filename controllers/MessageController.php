@@ -22,7 +22,7 @@ class MessageController extends Controller
     public function actionIndex()
     {
         $language = Language::findOrDefault(Yii::$app->request->get('languageId'));
-        $category = SourceMessage::findOne(Yii::$app->request->get('categoryId'));
+        $category = SourceMessage::find()->where(['category' => Yii::$app->request->get('categoryId')])->one();
         $message = SourceMessage::find();
 //        if(!empty($language)) {
 //            $message->with(['messages' => function($query) use($language) {
@@ -43,11 +43,11 @@ class MessageController extends Controller
         return $this->render('index', [
             'allLanguages' => Language::find()->all(),
             'languages' => Language::find()->where(['default' => false])->all(),
-            'allCategories' => SourceMessage::find()->select(['id', 'category'])->groupBy(['category', 'id'])->orderBy(['category' => SORT_ASC])->all(),
+            'allCategories' => SourceMessage::find()->select('category')->groupBy(['category'])->orderBy(['category' => SORT_ASC])->all(),
             'sourceMessages' => $messages,
             'pages' => $pages,
             'addModel' => new SourceMessage(),
-            'selectedCategory' => $category->id,
+            'selectedCategory' => (!empty($category->category)) ? $category->category : null,
             'selectedLanguage' => $language
         ]);
     }
