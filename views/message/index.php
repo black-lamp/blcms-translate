@@ -9,7 +9,6 @@
 /* @var $addTranslationFormModel AddTranslationForm */
 
 use bl\cms\translate\Translation;
-use bl\multilang\widgets\languageList\LanguageListWidget;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -140,18 +139,23 @@ $dataGet = Yii::$app->request->get();
                             </thead>
                             <tbody>
                             <?php foreach ($sourceMessages as $sourceMessage): ?>
-                                <tr style="<?= ((empty($messageTranslation) && !empty(ArrayHelper::index($languages, 'id')[$selectedLanguage->id])) ? 'color: #ed5565; border-left: 10px solid #ed5565;' : 'color: green; border-left: 10px solid green;') ?>">
+                                <?php $message = (!empty($sourceMessage->messages)) ?
+                                    ArrayHelper::index($sourceMessage->messages, 'language') : ''; ?>
+                                <?php $messageTranslation = (!empty($message[$selectedLanguage->lang_id])) ?
+                                    $message[$selectedLanguage->lang_id]->translation : ''; ?>
+
+                                <tr style="<?= ((!empty($messageTranslation) && !empty(ArrayHelper::index($languages, 'id')[$selectedLanguage->id])) ?
+                                    'color: green; border-left: 10px solid green;' : 'color: #ed5565; border-left: 10px solid #ed5565;') ?>">
+
                                     <td><?= $sourceMessage->category ?></td>
                                     <td><?= $sourceMessage->message ?></td>
-                                    <?php if (!empty($sourceMessage->messages)): ?>
-                                        <?php $messageTranslation = ArrayHelper::index($sourceMessage->messages, 'language')[$selectedLanguage->lang_id]->translation ?>
-                                        <td><?= $messageTranslation ?></td>
-                                    <?php else: ?>
-                                        <td></td>
-                                    <?php endif; ?>
+
+
+                                    <td><?= $messageTranslation; ?><td>
                                     <td>
                                         <?php
                                         $translations = ArrayHelper::index($sourceMessage->messages, 'language');
+
                                         foreach ($languages as $language) {
                                             echo Html::a(
                                                 $language->name,

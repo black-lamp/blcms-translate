@@ -42,7 +42,7 @@ class MessageController extends Controller
 
         return $this->render('index', [
             'allLanguages' => Language::find()->all(),
-            'languages' => Language::find()->where(['default' => false])->all(),
+            'languages' => Language::find()->where(['active' => true])->all(),
             'allCategories' => SourceMessage::find()->select('category')->groupBy(['category'])->orderBy(['category' => SORT_ASC])->all(),
             'sourceMessages' => $messages,
             'pages' => $pages,
@@ -54,19 +54,29 @@ class MessageController extends Controller
 
     public function actionAdd(){
         $addModel = new SourceMessage();
-        $messageCategory = SourceMessage::find()->where(['id' => Yii::$app->request->post('categoryId')])->one();
-        if($addModel->load(Yii::$app->request->post()) && $addModel->validate()){
-            if(!empty($messageCategory))
-                $addModel->category = $messageCategory->category;
-            if(empty($addModel->category)) {
-                Yii::$app->session->setFlash('error', 'Category empty');
-                return $this->redirect(Yii::$app->request->referrer);
+        $sourceMessage = SourceMessage::find()
+            ->where([
+                'category' => Yii::$app->request->post('categoryId'),
+                'message' => Yii::$app->request->post('SourceMessage')['message']
+            ])
+            ->one();
+
+        if (empty($sourceMessage)) {
+            if($addModel->load(Yii::$app->request->post()) && $addModel->validate()){
+                $addModel->category = (!empty($messageCategory)) ?
+                    $messageCategory->category : Yii::$app->request->post('categoryId');
+                if(empty($addModel->category)) {
+                    Yii::$app->session->setFlash('error', 'Category empty');
+                    return $this->redirect(Yii::$app->request->referrer);
+                }
+                $addModel->save();
+                Yii::$app->session->setFlash('success', 'Data success created.');
             }
-            $addModel->save();
-            Yii::$app->session->setFlash('success', 'Data success created.');
+            else
+                Yii::$app->session->setFlash('error', Html::errorSummary($addModel));
         }
-        else
-            Yii::$app->session->setFlash('error', Html::errorSummary($addModel));
+        else Yii::$app->session->setFlash('error', 'Such category already exists.');
+
         return $this->redirect(Yii::$app->request->referrer);
     }
 
