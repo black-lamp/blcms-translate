@@ -63,8 +63,8 @@ class MessageController extends Controller
 
         if (empty($sourceMessage)) {
             if($addModel->load(Yii::$app->request->post()) && $addModel->validate()){
-                $addModel->category = (!empty($messageCategory)) ?
-                    $messageCategory->category : Yii::$app->request->post('categoryId');
+                $addModel->category = (!empty($addModel->category)) ?
+                    $addModel->category : Yii::$app->request->post('categoryId');
                 if(empty($addModel->category)) {
                     Yii::$app->session->setFlash('error', 'Category empty');
                     return $this->redirect(Yii::$app->request->referrer);
