@@ -94,7 +94,7 @@ $dataGet = Yii::$app->request->get();
                 ); ?>
                 <?= $filteringForm->field($filterModel, 'translation')->textInput(); ?>
                 <div>
-                    <input style="width: 100%;" type="submit" class="btn btn-primary" value="<?= Translation::t('main', 'Filter the') ?>">
+                    <input style="width: 100%;" type="submit" class="btn btn-primary" value="<?= Translation::t('main', 'Filter') ?>">
                 </div>
                 <?php ActiveForm::end(); ?>
             </div>
