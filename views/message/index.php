@@ -1,21 +1,26 @@
 <?php
+/**
+ * @var $filterModel \bl\cms\translate\models\FilterModel
+ * @var $allCategories SourceMessage[]
+ * @var $allLanguages Language[]
+ * @var $languages Language[]
+ * @var $sourceMessages SourceMessage[]
+ * @var $pages yii\data\Pagination[]
+ * @var $selectedCategory SourceMessage
+ * @var $selectedLanguage Language
+ * @var $addModel SourceMessage
+ */
 
-/* @var $allCategories SourceMessage[] */
-/* @var $selectedCategory SourceMessage */
-/* @var $allLanguages Language[] */
-/* @var $selectedLanguage->id Language */
-/* @var $sourceMessages SourceMessage[] */
-/* @var $pages yii\data\Pagination[] */
-/* @var $addTranslationFormModel AddTranslationForm */
-
+use bl\cms\translate\models\entities\SourceMessage;
 use bl\cms\translate\Translation;
+use bl\multilang\entities\Language;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\widgets\LinkPager;
 
-$this->title = 'Перевод';
+$this->title = Translation::t('main', 'Translations');
 $dataGet = Yii::$app->request->get();
 ?>
 <div class="row">
@@ -27,7 +32,7 @@ $dataGet = Yii::$app->request->get();
             <div class="ibox-content">
                 <?php $addForm = ActiveForm::begin(['action' => Url::toRoute(['message/add']), 'method'=>'post']) ?>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <div class="form-group">
                             <label><?= Translation::t('main', 'Select category') ?></label>
                             <select id="filtertranslationform-categoryid" class="form-control" name="categoryId">
@@ -40,8 +45,7 @@ $dataGet = Yii::$app->request->get();
                                 <?php endforeach; ?>
                             </select>
                         </div>
-                    </div>
-                    <div class="col-md-6">
+
                         <div class="form-group">
                             <label><?= Translation::t('main', 'or write new') ?></label>
                             <?= $addForm->field($addModel, 'category', [
@@ -78,30 +82,17 @@ $dataGet = Yii::$app->request->get();
                 <h3><?= Translation::t('main', 'Filter') ?></h3>
             </div>
             <div class="ibox-content">
-                <?php ActiveForm::begin(['action' => Url::to(['index']), 'method' => 'get']) ?>
-                <div class="form-group">
-                    <label><?= Translation::t('main', 'Category') ?></label>
-                    <select id="filtertranslationform-categoryid" class="form-control" name="categoryId">
-                        <option value="">--<?= Translation::t('main', 'all') ?>--</option>
-                        <?php foreach ($allCategories as $category): ?>
-                            <option <?= $selectedCategory == $category['category'] ? 'selected' : '' ?>
-                                value="<?= $category['category'] ?>">
-                                <?= $category['category'] ?>
-                            </option>
-                        <?php endforeach;?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label><?= Translation::t('main', 'Language') ?></label>
-                    <select id="filtertranslationform-languageid" class="form-control" name="languageId">
-                        <?php foreach ($allLanguages as $language): ?>
-                            <option <?= $selectedLanguage->id == $language->id ? 'selected' : '' ?>
-                                value="<?= $language->id ?>">
-                                <?= $language->name ?>
-                            </option>
-                        <?php endforeach;?>
-                    </select>
-                </div>
+                <?php $filteringForm = ActiveForm::begin([
+                    'method' => 'post'
+                ]); ?>
+
+                <?= $filteringForm->field($filterModel, 'category')->dropDownList(
+                    ArrayHelper::map($allCategories, 'category', 'category')
+                ); ?>
+                <?= $filteringForm->field($filterModel, 'languageId')->dropDownList(
+                    ArrayHelper::map($allLanguages, 'id', 'name')
+                ); ?>
+                <?= $filteringForm->field($filterModel, 'translation')->textInput(); ?>
                 <div>
                     <input style="width: 100%;" type="submit" class="btn btn-primary" value="<?= Translation::t('main', 'Filter the') ?>">
                 </div>

@@ -10,6 +10,7 @@ namespace bl\cms\translate\controllers;
 
 use bl\cms\translate\models\entities\Message;
 use bl\cms\translate\models\entities\SourceMessage;
+use bl\cms\translate\models\FilterModel;
 use bl\multilang\entities\Language;
 use Yii;
 use yii\data\Pagination;
@@ -21,33 +22,47 @@ class MessageController extends Controller
 {
     public function actionIndex()
     {
-        $language = Language::findOrDefault(Yii::$app->request->get('languageId'));
-        $category = SourceMessage::find()->where(['category' => Yii::$app->request->get('categoryId')])->one();
-        $message = SourceMessage::find();
-//        if(!empty($language)) {
-//            $message->with(['messages' => function($query) use($language) {
-//                $query->andWhere(['language' => $language->lang_id]);
-//            }]);
-//        }
-        if(!empty($category)) {
-            $message->where(['category' => $category->category]);
+        $filterModel = new FilterModel();
+
+        $sourceMessages = SourceMessage::find();
+
+        if (\Yii::$app->request->isPost) {
+            $filterModel->load(\Yii::$app->request->post());
+
+            $language = Language::findOne($filterModel->languageId);
+            $category = $filterModel->category;
+            $translation = $filterModel->translation;
+
+            if (!empty($translation)) {
+                $sourceMessages->joinWith('messages')->where(['like', 'translation', $translation]);
+                $sourceMessages->orWhere(['like', 'message', $translation]);
+            }
+            if(!empty($category)) {
+                $sourceMessages->andWhere(['category' => $category]);
+            }
+        }
+        else {
+            $language = Language::getCurrent();
         }
 
-        $messages_count = clone $message;
-        $pages = new Pagination(['totalCount' => $messages_count->count(), 'defaultPageSize' => 50]);
-        $messages = $message->offset($pages->offset)
+        $sourceMessagesClone = clone $sourceMessages;
+        $count = $sourceMessagesClone->count();
+
+        $pages = new Pagination(['totalCount' => $count, 'defaultPageSize' => 50]);
+        $sourceMessages = $sourceMessages->offset($pages->offset)
             ->orderBy(['id' => SORT_DESC])
             ->limit($pages->limit)
             ->all();
 
         return $this->render('index', [
+            'filterModel' => $filterModel,
+            'allCategories' => SourceMessage::find()->select('category')->groupBy(['category'])->orderBy(['category' => SORT_ASC])->all(),
             'allLanguages' => Language::find()->all(),
             'languages' => Language::find()->where(['active' => true])->all(),
-            'allCategories' => SourceMessage::find()->select('category')->groupBy(['category'])->orderBy(['category' => SORT_ASC])->all(),
-            'sourceMessages' => $messages,
+            'sourceMessages' => $sourceMessages,
             'pages' => $pages,
             'addModel' => new SourceMessage(),
-            'selectedCategory' => (!empty($category->category)) ? $category->category : null,
+            'selectedCategory' => (!empty($category)) ? $category : null,
             'selectedLanguage' => $language
         ]);
     }
