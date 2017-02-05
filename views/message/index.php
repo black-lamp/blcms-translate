@@ -87,7 +87,8 @@ $dataGet = Yii::$app->request->get();
                 ]); ?>
 
                 <?= $filteringForm->field($filterModel, 'category')->dropDownList(
-                    ArrayHelper::map($allCategories, 'category', 'category')
+                    ArrayHelper::map($allCategories, 'category', 'category'),
+                    ['prompt' => Translation::t('main', 'All categories'),]
                 ); ?>
                 <?= $filteringForm->field($filterModel, 'languageId')->dropDownList(
                     ArrayHelper::map($allLanguages, 'id', 'name')
